@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bubble Chat</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #2b5876, #4e4376);
+      height: 100vh;
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .container {
+      width: 90%;
+      max-width: 1200px;
+      height: 85vh;
+      background: #fff;
+      display: flex;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }
+
+    .sidebar {
+      width: 25%;
+      background: #1e1e2e;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      padding: 20px;
+    }
+
+    .chat-area {
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      background: #f5f5f5;
+    }
+
+    .chat-header {
+      background: #3f3d56;
+      color: white;
+      padding: 15px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .chat-messages {
+      flex-grow: 1;
+      overflow-y: auto;
+      padding: 15px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .message {
+      padding: 10px;
+      margin: 5px 0;
+      border-radius: 10px;
+      max-width: 70%;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+    }
+
+    .sent {
+      background: #4e4376;
+      color: white;
+      align-self: flex-end;
+      margin-left: auto;
+    }
+
+    .received {
+      background: #e0e0e0;
+      color: #000;
+      align-self: flex-start;
+      margin-right: auto;
+    }
+
+    .message-content {
+      /* Add your existing styles for message content */
+    }
+
+    .timestamp {
+      font-size: 0.8rem;
+      color: #888;
+      margin-top: 4px;
+      align-self: flex-end;
+    }
+
+    .chat-input {
+      display: flex;
+      padding: 10px;
+      background: white;
+      border-top: 1px solid #ccc;
+    }
+
+    .chat-input input {
+      flex-grow: 1;
+      padding: 10px;
+      border: none;
+      border-radius: 8px;
+      outline: none;
+      background: #f0f0f0;
+    }
+
+    .chat-input button {
+      margin-left: 10px;
+      background: #4e4376;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .notification-dot {
+      position: absolute;
+      top: -4px;
+      right: -4px;
+      width: 10px;
+      height: 10px;
+      background: #e74c3c;
+      border-radius: 50%;
+      box-shadow: 0 0 8px rgba(231, 76, 60, 0.5);
+    }
+
+    .chat-popup {
+      width: 24rem; /* Fixed width */
+      height: 32rem; /* Fixed height */
+    }
+
+    .chat-popup-box {
+      overflow-y: auto; /* Make the chat box scrollable */
+    }
+  </style>
+</head>
+<body>
+  <!-- Welcome Overlay -->
+  <div id="welcome-overlay" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 animate__animated animate__fadeIn">
+    <div class="text-center text-white p-8 rounded-lg animate__animated animate__bounceIn">
+      <h1 class="text-4xl font-bold mb-4">Welcome to Bubble Chat</h1>
+      <p class="text-xl mb-6">Connecting people through conversations</p>
+      <div class="loading-dots">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="container animate__animated animate__fadeInUp">
+    <aside class="sidebar">
+      <header class="sidebar-header flex justify-between items-center mb-6 animate__animated animate__slideInLeft relative">
+        <div class="flex items-center">
+          <i class="fas fa-comments text-2xl mr-2"></i>
+          <h2 class="text-2xl font-bold">Bubble Chat</h2>
+        </div>
+        <button id="logout-btn" class="logout-btn text-lg hover:text-red-400 transition-colors duration-300">
+          <i class="fas fa-sign-out-alt"></i>
+        </button>
+      </header>
+
+      <div class="search-container relative mb-6 animate__animated animate__slideInLeft" style="animation-delay: 0.2s;">
+        <input id="search-input" type="text" placeholder="Search users or groups"
+               class="w-full p-3 rounded-lg bg-gray-800 text-white placeholder-gray-300 focus:ring-2 focus:ring-blue-400 transition-all duration-300">
+        <i class="fas fa-search search-icon absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-300"></i>
+      </div>
+
+      <div class="tabs flex mb-4 animate__animated animate__slideInLeft" style="animation-delay: 0.3s;">
+        <button class="tab-btn active flex-1 py-2 text-center relative" data-tab="friends">
+          Friends
+          <span id="friends-dot" class="notification-dot hidden"></span>
+        </button>
+        <button class="tab-btn flex-1 py-2 text-center relative" data-tab="requests">
+          Requests
+          <span id="requests-dot" class="notification-dot hidden"></span>
+        </button>
+      </div>
+
+      <div class="tab-content flex-grow">
+        <ul class="chat-list flex-grow overflow-y-auto animate__animated animate__fadeIn" id="user-list"></ul>
+        <ul class="friend-requests flex-grow overflow-y-auto hidden animate__animated animate__fadeIn" id="friend-requests"></ul>
+      </div>
+    </aside>
+
+    <main class="chat-area">
+      <div class="welcome-message flex-grow flex items-center justify-center text-center p-8">
+        <div class="animate__animated animate__fadeIn">
+          <i class="fas fa-comments text-6xl text-blue-500 mb-4"></i>
+          <h2 class="text-2xl font-bold text-gray-800">Welcome to Bubble Chat</h2>
+          <p class="text-gray-600 mt-2">Select a friend to start chatting</p>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Chat Popup Template -->
+  <div id="chat-popup-template" class="chat-popup hidden fixed bottom-4 right-4 bg-white shadow-2xl rounded-lg flex flex-col overflow-hidden animate__animated animate__fadeInUp">
+    <header class="chat-popup-header bg-gradient-to-r from-blue-600 to-purple-600 text-white p-4 flex justify-between items-center">
+      <div class="flex items-center">
+        <div class="status-indicator mr-2"></div>
+        <span class="chat-popup-name font-bold"></span>
+      </div>
+      <div class="flex items-center">
+        <button class="minimize-btn mr-3 text-lg hover:text-gray-300 transition-colors duration-300">
+          <i class="fas fa-minus"></i>
+        </button>
+        <button class="close-popup-btn text-lg hover:text-gray-300 transition-colors duration-300">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+    </header>
+
+    <div class="chat-date bg-gray-100 text-gray-600 text-center py-2 text-sm sticky top-0 z-10"></div>
+
+    <div class="chat-popup-box flex-grow p-4 overflow-y-auto">
+      <!-- Messages will be inserted here -->
+    </div>
+
+    <div class="chat-popup-footer bg-gray-100 p-3 flex items-center">
+      <div class="flex-grow relative">
+        <input type="text" class="popup-message w-full p-3 pr-12 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-300"
+               placeholder="Type a message...">
+      </div>
+      <button class="popup-send-btn ml-3 p-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors duration-300">
+        <i class="fas fa-paper-plane"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div id="toast-container" class="fixed top-4 right-4 z-50"></div>
+
+  <!-- Audio element for notification sound -->
+  <audio id="notification-sound" src="/sounds/rt.mp3" preload="auto"></audio>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.4/socket.io.js"></script>
+  <script src="script.js"></script>  
+</body>
+</html>

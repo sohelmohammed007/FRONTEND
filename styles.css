@@ -1,0 +1,67 @@
+.user-item {
+    border-bottom: 1px solid #e0e0e0;
+    padding: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .user-info {
+    font-size: 1rem;
+    color: #333;
+    display: flex;
+    align-items: center;
+  }
+  
+  .username {
+    margin-right: 5px;
+  }
+  
+  .status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+  }
+  
+  .actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .add-btn, .message-btn, .unfriend-btn, .accept-btn {
+    padding: 5px 10px;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+  }
+  
+  .add-btn:hover {
+    background-color: #3b82f6; /* Tailwind blue-500 */
+  }
+  
+  .message-btn:hover {
+    background-color: #10b981; /* Tailwind green-500 */
+  }
+  
+  .unfriend-btn:hover {
+    background-color: #ef4444; /* Tailwind red-500 */
+  }
+  
+  .accept-btn:hover {
+    background-color: #10b981; /* Tailwind green-500 */
+  }
+  
+  .notification-dot {
+    width: 8px;
+    height: 8px;
+    background-color: #e74c3c;
+    border-radius: 50%;
+    box-shadow: 0 0 8px rgba(231, 76, 60, 0.5);
+    position: absolute;
+    top: -4px;
+    right: -4px;
+  }
+  
+  .new-message .notification-dot {
+    display: block;
+  }
